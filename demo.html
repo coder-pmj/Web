@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #canvas {
+            display: block;
+            border: 5px solid black;
+            background-color: black
+        }
+
+        #canvas:hover {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        var canv = document.getElementById('canvas');
+        var ctx = canv.getContext('2d');
+
+        var init = function () {
+            canv.width = window.innerWidth;
+            canv.height = window.innerHeight;
+        }
+        init();
+        window.onresize = init;
+
+        var circleList = [];
+        canv.addEventListener('mousemove', function (e) {//监听
+            circleList.push(new Circle(e.offsetX, e.offsetY));
+        })
+
+        function random() {
+            return Math.floor(Math.random() * 256) //随机产生0-255整数
+        }
+
+        //生成圆
+        function Circle(x, y) {
+            this.x = x;
+            this.y = y;
+            this.vx = (Math.random() - 0.5) * 2.5//扩散速度   
+            this.vy = (Math.random() - 0.5) * 2.5
+            this.color = "rgb(" + random() + "," + random() + "," + random() + ")";
+            this.a = 1;//设置透明度
+            this.draw();
+        }
+
+        Circle.prototype = {//仓库   公有
+            draw: function () {
+                ctx.beginPath();
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.a;
+                ctx.globalCompositeOperation = 'lighter';
+                ctx.arc(this.x, this.y, 25, 0, 2 * Math.PI);
+                ctx.fill();
+                this.update();
+            },
+            update: function () {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.a *= 0.98
+            }
+        }
+
+
+        function move() {
+            ctx.clearRect(0, 0, canv.width, canv.height);
+
+            circleList.forEach((element, index) => {
+                element.draw();
+                if (element.a < 0.05) {
+                    circleList.splice(index, 1);
+                }
+            });
+            requestAnimationFrame(move)
+        }
+        move();
+    </script>
+</body>
+
+</html>
